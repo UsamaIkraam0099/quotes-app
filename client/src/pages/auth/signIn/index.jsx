@@ -55,8 +55,8 @@ const SignIn = () => {
             form={form}
             type="email"
             name="email"
-            style={{ marginTop: "2rem" }}
             onChange={handleInputChange}
+            style={{ marginTop: "2rem" }}
           />
 
           <Input
@@ -70,7 +70,7 @@ const SignIn = () => {
         </form>
 
         <p className="signup-label">
-          Dont have an account? <a href="/signup">Sign up</a>
+          Don't have an account? <a href="/signup">Sign up</a>
         </p>
       </AuthCard>
     </div>
