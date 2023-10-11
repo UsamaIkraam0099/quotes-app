@@ -42,8 +42,6 @@ const SignIn = () => {
 
     for (let key in form) data[key] = form[key].value;
 
-    console.log({ data });
-
     navigate("/dashboard");
   };
 

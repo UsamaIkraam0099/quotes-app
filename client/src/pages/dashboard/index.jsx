@@ -1,5 +1,5 @@
 import "./style.scss";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Others
 import { NavBar } from "../../comman";
