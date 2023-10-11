@@ -1,0 +1,15 @@
+@import "../../../styles/variables";
+
+div{
+    color: $textDark;
+}
+
+.form-label{
+    font-size: small;
+    margin-bottom: .2rem;
+}
+
+.form-control {
+    width: 50vh;
+    font-size: small;
+}

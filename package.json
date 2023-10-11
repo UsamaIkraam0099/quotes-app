@@ -6,7 +6,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-dev": "nodemon app"
+    "start-dev": "nodemon app",
+    "run-client":"cd client && yarn start"
   },
   "keywords": [],
   "author": "",

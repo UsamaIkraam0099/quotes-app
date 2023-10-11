@@ -1,0 +1,25 @@
+@import "../../../src/styles/variables";
+
+.container {
+    height:100vh;
+    display: flex;
+    padding: 10vh;
+    max-width: 740vh;
+    justify-content: center;
+    background-color: $primaryBg;
+}
+
+h3 {
+    color: $textDark;
+    margin-top: 3rem;
+}
+
+.signup-label{
+    margin-top: 2rem;
+    font-size: small;
+    color: $textDark;
+}
+
+.img-thumbnail{
+    border-radius: 100%;
+}
