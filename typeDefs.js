@@ -18,6 +18,7 @@ const typeDefs = gql`
   }
 
   type Quote {
+    _id: ID!
     name: String!
     by: String!
   }
@@ -30,6 +31,8 @@ const typeDefs = gql`
     signUp(user: NewUser!): SignUpUser
     signIn(email: String!, password: String!): SignInUser
     createQuote(name: String!): Quote
+    updateQuote(_id: ID!, name: String!): Quote
+    deleteQuote(_id: ID!): DeleteQuote
   }
 
   input NewUser {
@@ -53,6 +56,10 @@ const typeDefs = gql`
     lastName: String!
     email: String!
     token: String!
+  }
+
+  type DeleteQuote {
+    message: String
   }
 `;
 

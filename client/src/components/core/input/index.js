@@ -13,6 +13,7 @@ const index = ({ form, name, type, style, visible, onChange }) => {
         id={form[name].label}
         className="form-control"
         aria-describedby="emailHelp"
+        defaultValue={form[name].value || ""}
         placeholder={form[name].placeholder}
         onChange={({ nativeEvent }) => onChange(name, nativeEvent.target.value)}
       />

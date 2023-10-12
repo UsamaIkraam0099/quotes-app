@@ -4,7 +4,14 @@ import React from "react";
 import { Input } from "../../core";
 import { Modal, Button, Spinner } from "react-bootstrap";
 
-const index = ({ show, form, visible, handleClose, handleInputChange }) => {
+const index = ({
+  show,
+  form,
+  visible,
+  isUpdate,
+  handleClose,
+  handleInputChange,
+}) => {
   return (
     <Modal
       show={show}
@@ -13,7 +20,7 @@ const index = ({ show, form, visible, handleClose, handleInputChange }) => {
       centered
     >
       <Modal.Header closeButton>
-        <Modal.Title>Add New Quote</Modal.Title>
+        <Modal.Title>{`${!isUpdate ? "Add" : "Update"}`} New Quote</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Input
@@ -26,7 +33,8 @@ const index = ({ show, form, visible, handleClose, handleInputChange }) => {
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={() => handleClose(1)} disabled={visible}>
-          Add
+          {`${!isUpdate ? "Add" : "Update"}`}
+
           {visible && (
             <Spinner
               as="span"

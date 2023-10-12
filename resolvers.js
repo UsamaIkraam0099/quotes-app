@@ -101,6 +101,27 @@ const resolvers = {
 
       return quote;
     },
+
+    updateQuote: async (_, { _id, name }, { userId }) => {
+      if (!userId) throw new Error("Unauthorized. Please signin first.");
+
+      const quote = await Quote.findByIdAndUpdate(_id, { name }, { new: true });
+
+      if (!quote)
+        throw new Error(
+          "We are not able to update quote. Please try again later."
+        );
+
+      return quote;
+    },
+
+    deleteQuote: async (_, { _id }, { userId }) => {
+      if (!userId) throw new Error("Unauthorized. Please signin first.");
+
+      await Quote.findByIdAndDelete(_id);
+
+      return { message: "Quote deleted" };
+    },
   },
 };
 

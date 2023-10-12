@@ -6,11 +6,19 @@ import { NavBar } from "../../comman";
 import { Modal } from "../../components/core";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
-import { CREATE_QUOTE, GET_QUOTES_BY_ID } from "../../graphql/queries";
+import {
+  CREATE_QUOTE,
+  DELETE_QUOTE,
+  UPDATE_QUOTE,
+  GET_QUOTES_BY_ID,
+} from "../../graphql/queries";
+
+let selectedItem = "";
 
 let initialState = {
   show: false,
   visible: false,
+  isUpdate: false,
   form: {
     name: {
       value: "",
@@ -23,7 +31,7 @@ let initialState = {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [{ show, form, visible }, setState] = useState(initialState);
+  const [{ show, form, visible, isUpdate }, setState] = useState(initialState);
 
   const updateState = (state) =>
     setState((prevState) => ({ ...prevState, ...state }));
@@ -53,9 +61,43 @@ const Dashboard = () => {
       updateState({ visible: false });
       alert(error.message);
     },
-    onCompleted: (data) => {
+    onCompleted: () => {
       refetch();
       updateState({ show: false, visible: false });
+    },
+    context: {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JSON.parse(localStorage.getItem("@TOKEN"))}`,
+      },
+    },
+  });
+
+  const [deleteQuote] = useMutation(DELETE_QUOTE, {
+    onError: (error) => {
+      alert(error.message);
+    },
+    onCompleted: (data) => {
+      refetch();
+      alert(data.quote.message);
+    },
+    context: {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JSON.parse(localStorage.getItem("@TOKEN"))}`,
+      },
+    },
+  });
+
+  const [updateQuote] = useMutation(UPDATE_QUOTE, {
+    onError: (error) => {
+      updateState({ show: false, visible: false });
+      alert(error.message);
+    },
+    onCompleted: () => {
+      refetch();
+      _clearForm();
+      updateState({ show: false, visible: false, isUpdate: false });
     },
     context: {
       headers: {
@@ -92,12 +134,27 @@ const Dashboard = () => {
       for (let key in form) data[key] = form[key].value;
 
       setTimeout(() => {
-        createQuote({ variables: { name: data.name } });
+        if (!isUpdate) createQuote({ variables: { name: data.name } });
+        else
+          updateQuote({
+            variables: { _id: selectedItem._id, name: data.name },
+          });
       }, 3000);
       return;
     }
 
-    updateState({ show: false });
+    _clearForm();
+
+    updateState({ show: false, isUpdate: false });
+  };
+
+  const _deleteQuote = (_id) => {
+    deleteQuote({ variables: { _id } });
+  };
+
+  const _clearForm = () => {
+    const formCopy = { ...form };
+    if (formCopy["name"].value) formCopy["name"].value = "";
   };
 
   return (
@@ -128,13 +185,19 @@ const Dashboard = () => {
                 </div>
 
                 <i
-                  class="bi bi-arrow-clockwise update-icon"
-                  onClick={() => console.log("Update")}
+                  className="bi bi-arrow-clockwise update-icon"
+                  onClick={() => {
+                    selectedItem = item;
+                    const formCopy = { ...form };
+                    formCopy["name"].value = item.name;
+
+                    updateState({ form: formCopy, isUpdate: true, show: true });
+                  }}
                 ></i>
 
                 <i
                   className="bi bi-trash3-fill delete-icon"
-                  onClick={() => console.log("Delete")}
+                  onClick={() => _deleteQuote(item._id)}
                 ></i>
               </div>
             );
@@ -148,6 +211,7 @@ const Dashboard = () => {
         show={show}
         form={form}
         visible={visible}
+        isUpdate={isUpdate}
         handleClose={handleClose}
         handleInputChange={handleInputChange}
       />
