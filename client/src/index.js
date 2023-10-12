@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 // Others
 import Routes from "./routes";
 import reportWebVitals from "./reportWebVitals";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 
 const client = new ApolloClient({

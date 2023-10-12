@@ -23,3 +23,21 @@ h3 {
 .img-thumbnail{
     border-radius: 100%;
 }
+
+.update-icon {
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    color:teal
+}
+
+.delete-icon{
+    position: absolute;
+    right: 7px;
+    top: 30px;
+    color:crimson
+}
+
+.error-label{
+    color: darkgrey;
+}

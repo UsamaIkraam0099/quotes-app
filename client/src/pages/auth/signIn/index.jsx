@@ -2,11 +2,14 @@ import "./style.scss";
 import { useState } from "react";
 
 // Others
+import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { AuthCard } from "../../../components";
+import { SIGN_IN } from "../../../graphql/mutations";
 import { Input, Button } from "../../../components/core";
 
 let initialState = {
+  visible: false,
   form: {
     email: {
       value: "",
@@ -26,10 +29,24 @@ let initialState = {
 const SignIn = () => {
   const navigate = useNavigate();
 
-  const [{ form }, setState] = useState(initialState);
+  const [{ form, visible }, setState] = useState(initialState);
 
   const updateState = (state) =>
     setState((prevState) => ({ ...prevState, ...state }));
+
+  const [signIn] = useMutation(SIGN_IN, {
+    onError: (error) => {
+      updateState({ visible: false });
+      alert(error.message);
+    },
+    onCompleted: (data) => {
+      localStorage.setItem("@USER", JSON.stringify(data.user));
+      localStorage.setItem("@TOKEN", JSON.stringify(data.user.token));
+      updateState({ visible: false });
+
+      navigate("/dashboard");
+    },
+  });
 
   const handleInputChange = (name, value) => {
     let formCopy = { ...form };
@@ -37,12 +54,16 @@ const SignIn = () => {
     updateState({ form: formCopy });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateState({ visible: true });
     let data = {};
 
     for (let key in form) data[key] = form[key].value;
 
-    navigate("/dashboard");
+    setTimeout(() => {
+      signIn({ variables: { email: data.email, password: data.password } });
+    }, 3000);
   };
 
   return (
@@ -55,6 +76,7 @@ const SignIn = () => {
             form={form}
             type="email"
             name="email"
+            visible={visible}
             onChange={handleInputChange}
             style={{ marginTop: "2rem" }}
           />
@@ -63,10 +85,15 @@ const SignIn = () => {
             form={form}
             type="password"
             name="password"
+            visible={visible}
             onChange={handleInputChange}
           />
 
-          <Button label="Sign In" style={{ marginTop: "1rem" }} />
+          <Button
+            label="Sign In"
+            visible={visible}
+            style={{ marginTop: "1rem" }}
+          />
         </form>
 
         <p className="signup-label">

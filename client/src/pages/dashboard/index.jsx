@@ -1,29 +1,18 @@
 import "./style.scss";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Others
 import { NavBar } from "../../comman";
 import { Modal } from "../../components/core";
-
-const data = [
-  {
-    name: "hdsfusdh buasbfduyfabk",
-  },
-
-  {
-    name: "hdsfusdh buasbfduyfabk",
-  },
-
-  {
-    name: "hdsfusdh buasbfduyfabk",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation } from "@apollo/client";
+import { CREATE_QUOTE, GET_QUOTES_BY_ID } from "../../graphql/queries";
 
 let initialState = {
-  quotes: [],
   show: false,
+  visible: false,
   form: {
-    quote: {
+    name: {
       value: "",
       type: "INPUT",
       label: "Quote",
@@ -33,40 +22,50 @@ let initialState = {
 };
 
 const Dashboard = () => {
-  const [{ form, show, quotes }, setState] = useState(initialState);
+  const navigate = useNavigate();
+  const [{ show, form, visible }, setState] = useState(initialState);
 
   const updateState = (state) =>
     setState((prevState) => ({ ...prevState, ...state }));
 
-  useEffect(() => {
-    getQuotes();
-  }, []);
+  const USER = JSON.parse(localStorage.getItem("@USER"));
 
-  const getQuotes = async () => {
-    const response = await fetch("http://localhost:4000/", {
-      method: "POST",
+  const { data, error, refetch } = useQuery(GET_QUOTES_BY_ID, {
+    fetchPolicy: "network-only",
+    variables: { quoteBy: USER._id },
+    context: {
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTE0MTc5MWFjMzFhYTAwODE0YzFhOWYiLCJpYXQiOjE2OTcwMjE0MzB9.bNr1H-Z-eO4HsZNIqwAlMSVsyfE5J2eNQU9srHw7u1k",
+        Authorization: `Bearer ${JSON.parse(localStorage.getItem("@TOKEN"))}`,
       },
-      body: JSON.stringify({
-        query: `
-    query getAllQuotes {
-      quotes{
-        name
-        by
-      }
-    }
-    `,
-      }),
-    });
+    },
+    notifyOnNetworkStatusChange: true,
+    onError: (error) => {
+      console.log({ error });
+    },
+    onCompleted: (data) => {
+      // console.log({ data });
+    },
+  });
 
-    const res = await response.json();
+  const [createQuote] = useMutation(CREATE_QUOTE, {
+    onError: (error) => {
+      updateState({ visible: false });
+      alert(error.message);
+    },
+    onCompleted: (data) => {
+      refetch();
+      updateState({ show: false, visible: false });
+    },
+    context: {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JSON.parse(localStorage.getItem("@TOKEN"))}`,
+      },
+    },
+  });
 
-    if (res.errors?.length > 0) {
-    } else updateState({ quotes: res.data.quotes });
-  };
+  const { quote } = data || {};
 
   const handleInputChange = (name, value) => {
     let formCopy = { ...form };
@@ -80,17 +79,21 @@ const Dashboard = () => {
         updateState({ show: true });
         break;
       case 2:
+        localStorage.clear();
+        navigate("/");
         break;
     }
   };
 
   const handleClose = (flag) => {
     if (flag === 1) {
+      updateState({ visible: true });
       let data = {};
       for (let key in form) data[key] = form[key].value;
 
-      console.log({ data });
-
+      setTimeout(() => {
+        createQuote({ variables: { name: data.name } });
+      }, 3000);
       return;
     }
 
@@ -108,13 +111,13 @@ const Dashboard = () => {
           alt="profile"
         />
 
-        <h5 className="mt-2">Usama Ikraam</h5>
-        <p className="mt-1">usama.ikraam@al-ghurair.com</p>
+        <h5 className="mt-2">{`${USER.firstName} ${USER.lastName}`}</h5>
+        <p className="mt-1">{`${USER.email}`}</p>
       </div>
 
       <div className="d-flex flex-column align-items-center justify-content-center">
         <ul>
-          {quotes.map((item, index) => {
+          {quote?.map((item, index) => {
             return (
               <div
                 className="card mt-3 quotes-card"
@@ -123,15 +126,28 @@ const Dashboard = () => {
                 <div className="card-body">
                   <h6>{item.name}</h6>
                 </div>
+
+                <i
+                  class="bi bi-arrow-clockwise update-icon"
+                  onClick={() => console.log("Update")}
+                ></i>
+
+                <i
+                  className="bi bi-trash3-fill delete-icon"
+                  onClick={() => console.log("Delete")}
+                ></i>
               </div>
             );
           })}
         </ul>
+
+        {error && <h5 className="error-label">{error.message}</h5>}
       </div>
 
       <Modal
         show={show}
         form={form}
+        visible={visible}
         handleClose={handleClose}
         handleInputChange={handleInputChange}
       />

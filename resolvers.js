@@ -63,7 +63,9 @@ const resolvers = {
 
       const alterUserDetails = { ...user, ...{ password: hash } };
 
-      const newUser = User.create(alterUserDetails);
+      const newUser = await User.create(alterUserDetails);
+      const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
+      newUser["token"] = token;
 
       return newUser;
     },

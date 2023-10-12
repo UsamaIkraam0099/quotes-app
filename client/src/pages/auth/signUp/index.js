@@ -2,10 +2,14 @@ import "./style.scss";
 import { useState } from "react";
 
 // Others
+import { useMutation } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 import { AuthCard } from "../../../components";
+import { SIGN_UP } from "../../../graphql/mutations";
 import { Input, Button } from "../../../components/core";
 
 let initialState = {
+  visible: false,
   form: {
     firstName: {
       value: "",
@@ -35,10 +39,27 @@ let initialState = {
 };
 
 const SignUp = () => {
-  const [{ form }, setState] = useState(initialState);
+  const navigate = useNavigate();
+
+  const [{ form, visible }, setState] = useState(initialState);
 
   const updateState = (state) =>
     setState((prevState) => ({ ...prevState, ...state }));
+
+  const [signUp] = useMutation(SIGN_UP, {
+    onError: (error) => {
+      updateState({ visible: false });
+      alert(error.message);
+    },
+    onCompleted: (data) => {
+      console.log({ data });
+      localStorage.setItem("@USER", JSON.stringify(data.user));
+      localStorage.setItem("@TOKEN", JSON.stringify(data.user.token));
+      updateState({ visible: false });
+
+      navigate("/dashboard");
+    },
+  });
 
   const handleInputChange = (name, value) => {
     let formCopy = { ...form };
@@ -46,12 +67,16 @@ const SignUp = () => {
     updateState({ form: formCopy });
   };
 
-  const handleClick = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateState({ visible: true });
     let data = {};
 
     for (let key in form) data[key] = form[key].value;
 
-    console.log({ data });
+    setTimeout(() => {
+      signUp({ variables: { user: data } });
+    }, 3000);
   };
 
   return (
@@ -59,19 +84,21 @@ const SignUp = () => {
       <AuthCard style={{ padding: "5vh" }}>
         <h3 style={{ marginTop: 0 }}>Sign Up</h3>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           <Input
             form={form}
-            type="email"
+            type="text"
             name="firstName"
+            visible={visible}
             style={{ marginTop: "2rem" }}
             onChange={handleInputChange}
           />
 
           <Input
             form={form}
-            type="email"
+            type="text"
             name="lastName"
+            visible={visible}
             onChange={handleInputChange}
           />
 
@@ -79,6 +106,7 @@ const SignUp = () => {
             form={form}
             type="email"
             name="email"
+            visible={visible}
             onChange={handleInputChange}
           />
 
@@ -86,15 +114,16 @@ const SignUp = () => {
             form={form}
             type="password"
             name="password"
+            visible={visible}
             onChange={handleInputChange}
           />
-        </form>
 
-        <Button
-          label="Sign Up"
-          style={{ marginTop: "1rem" }}
-          onClick={() => handleClick()}
-        />
+          <Button
+            label="Sign Up"
+            visible={visible}
+            style={{ marginTop: "1rem" }}
+          />
+        </form>
 
         <p className="signup-label">
           Already have an account? <a href="/">Sign in</a>

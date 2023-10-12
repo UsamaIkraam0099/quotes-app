@@ -1,6 +1,6 @@
 import "./styles.scss";
 
-const index = ({ form, name, type, style, onChange }) => {
+const index = ({ form, name, type, style, visible, onChange }) => {
   return (
     <div className="mb-3" style={style}>
       <label htmlFor={form[name].label} className="form-label">
@@ -9,6 +9,7 @@ const index = ({ form, name, type, style, onChange }) => {
       <input
         required
         type={type}
+        disabled={visible}
         id={form[name].label}
         className="form-control"
         aria-describedby="emailHelp"

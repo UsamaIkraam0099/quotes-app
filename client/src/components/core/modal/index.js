@@ -2,9 +2,9 @@ import React from "react";
 
 // Others
 import { Input } from "../../core";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 
-const index = ({ show, form, handleClose, handleInputChange }) => {
+const index = ({ show, form, visible, handleClose, handleInputChange }) => {
   return (
     <Modal
       show={show}
@@ -17,14 +17,27 @@ const index = ({ show, form, handleClose, handleInputChange }) => {
       </Modal.Header>
       <Modal.Body>
         <Input
+          type="text"
+          name="name"
           form={form}
-          type="quote"
-          name="quote"
+          visible={visible}
           onChange={handleInputChange}
         />
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={() => handleClose(1)}>Add</Button>
+        <Button onClick={() => handleClose(1)} disabled={visible}>
+          Add
+          {visible && (
+            <Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+              style={{ marginLeft: "1rem" }}
+            />
+          )}
+        </Button>
       </Modal.Footer>
     </Modal>
   );
